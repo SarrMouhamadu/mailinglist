@@ -19,140 +19,180 @@ function phoneValidator(control: AbstractControl): ValidationErrors | null {
   imports: [CommonModule, ReactiveFormsModule, InputComponent, ButtonComponent],
   template: `
     <div class="step-container fade-in">
-      <div class="header">
-        <h1 class="text-gradient">Précommande</h1>
-        <p>Réservez votre solution AI Karangué dès aujourd'hui.</p>
+      <div class="header text-center">
+        <h1 class="text-gradient">Précommande AI Karangué</h1>
+        <p>Réservez votre solution dès aujourd'hui. Une interface fluide et repensée pour vous.</p>
       </div>
 
       <form [formGroup]="standForm" (ngSubmit)="onSubmit()">
         
-        <div class="form-row">
-          <app-input 
-            formControlName="fullName" 
-            label="Nom et prénom *" 
-            placeholder="Ex: Amadou Ndiaye"
-            [error]="getError('fullName')">
-          </app-input>
-
-          <app-input 
-            formControlName="whatsapp" 
-            label="Numéro WhatsApp *" 
-            placeholder="Ex: +221 77 000 00 00"
-            [error]="getError('whatsapp')">
-          </app-input>
-        </div>
-
-        <!-- Package Section -->
-        <div class="section-container">
-          <label class="input-label">Offre choisie *</label>
-          <div class="radio-group">
-            <label class="radio-card" [class.active]="standForm.get('package')?.value === 'monthly'">
-              <input type="radio" formControlName="package" value="monthly">
-              <span class="radio-label">Offre mensuelle</span>
-              <span class="radio-price">9 900 FCFA</span>
-            </label>
-            <label class="radio-card" [class.active]="standForm.get('package')?.value === 'yearly'">
-              <input type="radio" formControlName="package" value="yearly">
-              <span class="radio-label">Offre annuelle</span>
-              <span class="radio-price">100 000 FCFA</span>
-            </label>
-          </div>
-          <span class="error-hint" *ngIf="getError('package')">{{ getError('package') }}</span>
-        </div>
-
-        <div class="form-row form-row-align-top">
-          <!-- Vehicle Count -->
-          <div class="section-container">
-            <app-input 
-              formControlName="vehicleCount" 
-              label="Nombre de véhicules *" 
-              type="number"
-              placeholder="Ex: 10"
-              [error]="getError('vehicleCount')">
-            </app-input>
-          </div>
-
-          <!-- Start Date -->
-          <div class="section-container">
-            <label class="input-label">Date de démarrage souhaitée *</label>
-            <div class="radio-group-inline">
-              <label class="radio-inline">
-                <input type="radio" formControlName="startType" value="immediate">
-                <span>Immédiatement</span>
-              </label>
-              <label class="radio-inline">
-                <input type="radio" formControlName="startType" value="scheduled">
-                <span>À une date précise</span>
-              </label>
-            </div>
+        <div class="desktop-grid">
+          
+          <!-- COLONNE GAUCHE: Informations & Offre -->
+          <div class="grid-column">
+            <h3 class="section-title">1. Informations générales</h3>
             
-            <!-- Text Input pour la date (Conditionnel) -->
-            <div class="date-picker-container fade-in" *ngIf="standForm.get('startType')?.value === 'scheduled'">
+            <div class="form-row">
               <app-input 
-                formControlName="startDate" 
-                type="text"
-                placeholder="Ex: 15/08/2026 ou la semaine prochaine"
-                label="Date prévue *" 
-                [error]="getError('startDate')">
+                formControlName="fullName" 
+                label="Nom et prénom *" 
+                placeholder="Ex: Amadou Ndiaye"
+                [error]="getError('fullName')">
+              </app-input>
+
+              <app-input 
+                formControlName="whatsapp" 
+                label="Numéro WhatsApp *" 
+                placeholder="Ex: +221 77 000 00 00"
+                [error]="getError('whatsapp')">
               </app-input>
             </div>
-          </div>
-        </div>
 
-        <!-- Vehicle Types -->
-        <div class="section-container" style="margin-top: 0.5rem;">
-          <label class="input-label">Types de véhicules *</label>
-          <div class="chips-container">
-            <button 
-              *ngFor="let type of vehicleTypeOptions" 
-              type="button"
-              class="chip" 
-              [ngClass]="{'active': isVehicleTypeSelected(type)}"
-              (click)="toggleVehicleType(type)">
-              {{ type }}
-            </button>
+            <!-- Package Section -->
+            <div class="section-container" style="margin-top: 1.5rem;">
+              <label class="input-label">2. Offre choisie *</label>
+              <div class="radio-group">
+                <label class="radio-card" [class.active]="standForm.get('package')?.value === 'monthly'">
+                  <input type="radio" formControlName="package" value="monthly">
+                  <div class="radio-content">
+                    <span class="radio-label">Offre mensuelle</span>
+                    <span class="radio-price">9 900 FCFA</span>
+                  </div>
+                </label>
+                <label class="radio-card" [class.active]="standForm.get('package')?.value === 'yearly'">
+                  <input type="radio" formControlName="package" value="yearly">
+                  <div class="radio-content">
+                    <span class="radio-label">Offre annuelle</span>
+                    <span class="radio-price">100 000 FCFA</span>
+                  </div>
+                </label>
+              </div>
+              <span class="error-hint" *ngIf="getError('package')">{{ getError('package') }}</span>
+            </div>
           </div>
-          <span class="error-hint" *ngIf="showVehicleTypeError">Sélectionnez au moins un type de véhicule.</span>
-        </div>
 
-        <div class="action-bar">
-          <app-button 
-            text="Je précommande maintenant" 
-            type="submit"
-            [disabled]="submitting">
-          </app-button>
+          <!-- COLONNE DROITE: Flotte & Démarrage -->
+          <div class="grid-column">
+            <h3 class="section-title">3. Votre flotte</h3>
+
+            <div class="form-row form-row-align-top">
+              <!-- Vehicle Count -->
+              <div class="section-container" style="flex: 0.5;">
+                <app-input 
+                  formControlName="vehicleCount" 
+                  label="Nombre de véhicules *" 
+                  type="number"
+                  placeholder="Ex: 10"
+                  [error]="getError('vehicleCount')">
+                </app-input>
+              </div>
+
+              <!-- Start Date -->
+              <div class="section-container" style="flex: 1;">
+                <label class="input-label">Date de démarrage souhaitée *</label>
+                <div class="radio-group-inline">
+                  <label class="radio-inline">
+                    <input type="radio" formControlName="startType" value="immediate">
+                    <span>Immédiatement</span>
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" formControlName="startType" value="scheduled">
+                    <span>Date précise</span>
+                  </label>
+                </div>
+                
+                <div class="date-picker-container fade-in" *ngIf="standForm.get('startType')?.value === 'scheduled'">
+                  <app-input 
+                    formControlName="startDate" 
+                    type="text"
+                    placeholder="Ex: 15/08/2026 ou la semaine prochaine"
+                    [error]="getError('startDate')">
+                  </app-input>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vehicle Types -->
+            <div class="section-container" style="margin-top: 1.5rem;">
+              <label class="input-label">Types de véhicules dans votre flotte *</label>
+              <div class="chips-container">
+                <button 
+                  *ngFor="let type of vehicleTypeOptions" 
+                  type="button"
+                  class="chip" 
+                  [ngClass]="{'active': isVehicleTypeSelected(type)}"
+                  (click)="toggleVehicleType(type)">
+                  {{ type }}
+                </button>
+              </div>
+              <span class="error-hint" *ngIf="showVehicleTypeError">Sélectionnez au moins un type de véhicule.</span>
+            </div>
+
+          </div>
+
+        </div> <!-- Fin de la grille -->
+
+        <div class="action-bar text-center">
+          <button type="submit" class="premium-button" [disabled]="submitting">
+            {{ submitting ? 'Traitement en cours...' : '🚀 Je précommande maintenant' }}
+          </button>
         </div>
         
       </form>
     </div>
   `,
   styles: [`
-    .step-container { display: flex; flex-direction: column; gap: 1.5rem; }
-    .header p { color: var(--text-muted); font-size: 1.1rem; }
-    .section-container { margin-top: 1rem; }
+    .text-center { text-align: center; }
+    .step-container { display: flex; flex-direction: column; gap: 2rem; }
+    .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .header p { color: var(--text-muted); font-size: 1.2rem; }
+    
+    .section-title { color: #f8fafc; font-size: 1.3rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
+    .section-container { margin-top: 0.5rem; }
     .input-label { font-size: 1.1rem; color: var(--text-muted); font-weight: 500; margin-bottom: 0.8rem; display: block; }
     
+    /* Grille principale (Split 50/50 sur desktop) */
+    .desktop-grid { display: flex; flex-direction: column; gap: 2.5rem; }
+    @media (min-width: 992px) {
+      .desktop-grid { flex-direction: row; gap: 4rem; }
+      .grid-column { flex: 1; }
+    }
+
+    /* Lignes dans les colonnes */
+    .form-row { display: flex; flex-direction: column; gap: 1rem; }
+    @media (min-width: 600px) {
+      .form-row { flex-direction: row; gap: 1.5rem; }
+      .form-row > * { flex: 1; }
+      .form-row-align-top { align-items: flex-start; }
+    }
+
     /* Radio Cards */
     .radio-group { display: flex; flex-direction: column; gap: 1rem; }
+    @media (min-width: 600px) { .radio-group { flex-direction: row; } }
+    
     .radio-card {
+      flex: 1;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 15px 20px;
-      border-radius: 12px;
+      padding: 20px;
+      border-radius: 16px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
+      text-align: center;
     }
     .radio-card input { display: none; }
     .radio-card.active {
       background: rgba(20, 184, 166, 0.15);
       border-color: var(--primary);
-      box-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
+      box-shadow: 0 0 20px rgba(20, 184, 166, 0.2);
+      transform: translateY(-2px);
     }
-    .radio-label { font-size: 1.1rem; font-weight: 500; }
-    .radio-price { font-size: 1.2rem; font-weight: 600; color: var(--primary); }
+    .radio-content { display: flex; flex-direction: column; gap: 0.5rem; }
+    .radio-label { font-size: 1.1rem; font-weight: 500; color: #e2e8f0; }
+    .radio-price { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
 
     /* Checkboxes as Chips */
     .chips-container { display: flex; flex-wrap: wrap; gap: 0.8rem; }
@@ -160,58 +200,65 @@ function phoneValidator(control: AbstractControl): ValidationErrors | null {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       color: var(--text-muted);
-      padding: 10px 18px;
+      padding: 12px 20px;
       border-radius: 30px;
-      font-size: 1rem;
+      font-size: 1.05rem;
       cursor: pointer;
       font-family: 'Outfit', sans-serif;
       transition: all 0.2s ease;
     }
+    .chip:hover { background: rgba(255, 255, 255, 0.1); }
     .chip.active {
       background: var(--primary);
-      color: var(--bg-color);
+      color: var(--bg-dark);
       border-color: var(--primary);
-      font-weight: 600;
+      font-weight: 700;
     }
 
     /* Inline Radios */
-    .radio-group-inline { display: flex; gap: 1.5rem; margin-bottom: 1rem; }
+    .radio-group-inline { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 0.8rem; }
     .radio-inline {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       cursor: pointer;
-      color: var(--text-muted);
+      color: var(--text-main);
       font-size: 1.1rem;
     }
     .radio-inline input { accent-color: var(--primary); width: 1.2rem; height: 1.2rem; }
     
-    .date-picker-container { margin-top: 1rem; }
+    .date-picker-container { margin-top: 0.5rem; }
+
+    /* Premium Button */
+    .action-bar { margin-top: 3rem; }
+    .premium-button {
+      background: linear-gradient(135deg, #14b8a6, #008080);
+      color: white;
+      border: none;
+      padding: 18px 40px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(20, 184, 166, 0.4);
+      transition: all 0.3s ease;
+      font-family: 'Outfit', sans-serif;
+    }
+    .premium-button:hover:not(:disabled) {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 15px 35px rgba(20, 184, 166, 0.6);
+    }
+    .premium-button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
 
     .error-hint {
       display: block;
       color: var(--error);
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       margin-top: 0.5rem;
-    }
-    .action-bar { margin-top: 2rem; }
-
-    @media (min-width: 600px) {
-      .radio-group { flex-direction: row; }
-      .radio-card { flex: 1; }
-    }
-    
-    /* Layout Horizontal sur Desktop pour éviter de scroller */
-    .form-row { display: flex; flex-direction: column; gap: 1rem; }
-    @media (min-width: 768px) {
-      .form-row { flex-direction: row; gap: 2rem; }
-      .form-row > * { flex: 1; }
-      .form-row-align-top { align-items: flex-start; }
-      
-      /* Reduire les marges pour compacter l'espace vertical */
-      .section-container { margin-top: 0.5rem; }
-      .step-container { gap: 1rem; }
-      .action-bar { margin-top: 1rem; }
     }
   `]
 })
