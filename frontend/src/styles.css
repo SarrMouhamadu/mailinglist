@@ -27,7 +27,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Background Effects */
+/* Background Effects Container */
 .app-background {
   position: relative;
   min-height: 100vh;
@@ -69,7 +69,8 @@ body {
   position: relative;
   z-index: 10;
   width: 100%;
-  max-width: 500px;
+  max-width: 800px; /* Élargi pour les deux colonnes */
+  margin: 0 auto;
   background: var(--bg-panel);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);

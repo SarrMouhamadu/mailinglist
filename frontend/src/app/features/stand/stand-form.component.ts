@@ -26,19 +26,21 @@ function phoneValidator(control: AbstractControl): ValidationErrors | null {
 
       <form [formGroup]="standForm" (ngSubmit)="onSubmit()">
         
-        <app-input 
-          formControlName="fullName" 
-          label="Nom et prénom *" 
-          placeholder="Ex: Amadou Ndiaye"
-          [error]="getError('fullName')">
-        </app-input>
+        <div class="form-row">
+          <app-input 
+            formControlName="fullName" 
+            label="Nom et prénom *" 
+            placeholder="Ex: Amadou Ndiaye"
+            [error]="getError('fullName')">
+          </app-input>
 
-        <app-input 
-          formControlName="whatsapp" 
-          label="Numéro WhatsApp *" 
-          placeholder="Ex: +221 77 000 00 00"
-          [error]="getError('whatsapp')">
-        </app-input>
+          <app-input 
+            formControlName="whatsapp" 
+            label="Numéro WhatsApp *" 
+            placeholder="Ex: +221 77 000 00 00"
+            [error]="getError('whatsapp')">
+          </app-input>
+        </div>
 
         <!-- Package Section -->
         <div class="section-container">
@@ -58,19 +60,47 @@ function phoneValidator(control: AbstractControl): ValidationErrors | null {
           <span class="error-hint" *ngIf="getError('package')">{{ getError('package') }}</span>
         </div>
 
-        <!-- Vehicle Count -->
-        <div class="section-container">
-          <app-input 
-            formControlName="vehicleCount" 
-            label="Nombre de véhicules *" 
-            type="number"
-            placeholder="Ex: 10"
-            [error]="getError('vehicleCount')">
-          </app-input>
+        <div class="form-row form-row-align-top">
+          <!-- Vehicle Count -->
+          <div class="section-container">
+            <app-input 
+              formControlName="vehicleCount" 
+              label="Nombre de véhicules *" 
+              type="number"
+              placeholder="Ex: 10"
+              [error]="getError('vehicleCount')">
+            </app-input>
+          </div>
+
+          <!-- Start Date -->
+          <div class="section-container">
+            <label class="input-label">Date de démarrage souhaitée *</label>
+            <div class="radio-group-inline">
+              <label class="radio-inline">
+                <input type="radio" formControlName="startType" value="immediate">
+                <span>Immédiatement</span>
+              </label>
+              <label class="radio-inline">
+                <input type="radio" formControlName="startType" value="scheduled">
+                <span>À une date précise</span>
+              </label>
+            </div>
+            
+            <!-- Text Input pour la date (Conditionnel) -->
+            <div class="date-picker-container fade-in" *ngIf="standForm.get('startType')?.value === 'scheduled'">
+              <app-input 
+                formControlName="startDate" 
+                type="text"
+                placeholder="Ex: 15/08/2026 ou la semaine prochaine"
+                label="Date prévue *" 
+                [error]="getError('startDate')">
+              </app-input>
+            </div>
+          </div>
         </div>
 
         <!-- Vehicle Types -->
-        <div class="section-container">
+        <div class="section-container" style="margin-top: 0.5rem;">
           <label class="input-label">Types de véhicules *</label>
           <div class="chips-container">
             <button 
@@ -83,32 +113,6 @@ function phoneValidator(control: AbstractControl): ValidationErrors | null {
             </button>
           </div>
           <span class="error-hint" *ngIf="showVehicleTypeError">Sélectionnez au moins un type de véhicule.</span>
-        </div>
-
-        <!-- Start Date -->
-        <div class="section-container">
-          <label class="input-label">Date de démarrage souhaitée *</label>
-          <div class="radio-group-inline">
-            <label class="radio-inline">
-              <input type="radio" formControlName="startType" value="immediate">
-              <span>Immédiatement</span>
-            </label>
-            <label class="radio-inline">
-              <input type="radio" formControlName="startType" value="scheduled">
-              <span>À une date précise</span>
-            </label>
-          </div>
-          
-          <!-- Text Input pour la date (Conditionnel) -->
-          <div class="date-picker-container fade-in" *ngIf="standForm.get('startType')?.value === 'scheduled'">
-            <app-input 
-              formControlName="startDate" 
-              type="text"
-              placeholder="Ex: 15/08/2026 ou la semaine prochaine"
-              label="Date prévue *" 
-              [error]="getError('startDate')">
-            </app-input>
-          </div>
         </div>
 
         <div class="action-bar">
@@ -195,6 +199,19 @@ function phoneValidator(control: AbstractControl): ValidationErrors | null {
     @media (min-width: 600px) {
       .radio-group { flex-direction: row; }
       .radio-card { flex: 1; }
+    }
+    
+    /* Layout Horizontal sur Desktop pour éviter de scroller */
+    .form-row { display: flex; flex-direction: column; gap: 1rem; }
+    @media (min-width: 768px) {
+      .form-row { flex-direction: row; gap: 2rem; }
+      .form-row > * { flex: 1; }
+      .form-row-align-top { align-items: flex-start; }
+      
+      /* Reduire les marges pour compacter l'espace vertical */
+      .section-container { margin-top: 0.5rem; }
+      .step-container { gap: 1rem; }
+      .action-bar { margin-top: 1rem; }
     }
   `]
 })
