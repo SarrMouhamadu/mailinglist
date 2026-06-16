@@ -15,7 +15,7 @@ app.post('/api/pre-orders', async (req, res) => {
   const { 
     fullName, 
     whatsapp, 
-    package, 
+    package: subscriptionPackage, 
     vehicleCount, 
     vehicleTypes, 
     startType, 
@@ -33,7 +33,7 @@ app.post('/api/pre-orders', async (req, res) => {
     const values = [
       fullName, 
       whatsapp, 
-      package, 
+      subscriptionPackage, 
       vehicleCount, 
       JSON.stringify(vehicleTypes), 
       startType, 
