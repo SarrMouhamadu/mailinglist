@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* Design System & Variables */
+:root {
+  --primary: #14b8a6;
+  --primary-hover: #0d9488;
+  --secondary: #008080;
+  --bg-dark: #011627;
+  --bg-panel: rgba(1, 22, 39, 0.7);
+  --border-color: rgba(20, 184, 166, 0.2);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --error: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background Effects */
+.app-background {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 0;
+  opacity: 0.5;
+  animation: float 10s infinite alternate ease-in-out;
+}
+
+.orb-1 {
+  width: 40vw;
+  height: 40vw;
+  background: var(--primary);
+  top: -10%;
+  left: -10%;
+}
+
+.orb-2 {
+  width: 30vw;
+  height: 30vw;
+  background: var(--secondary);
+  bottom: -5%;
+  right: -5%;
+  animation-delay: -5s;
+}
+
+/* App Container (Glassmorphism) */
+.app-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 500px;
+  background: var(--bg-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Animations */
+@keyframes float {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(5%, 10%); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Typography & Utils */
+h1, h2, h3 {
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #14b8a6, #008080);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Admin Table Styles */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 800px;
+}
+
+.admin-table th, .admin-table td {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-table th {
+  background: rgba(20, 184, 166, 0.1);
+  color: var(--primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.badge {
+  background: rgba(20, 184, 166, 0.2);
+  color: var(--primary);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid rgba(20, 184, 166, 0.3);
+}
+
+.fw-bold {
+  font-weight: 600;
+}
+.text-center {
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .admin-table thead {
+    display: none;
+  }
+  .admin-table, .admin-table tbody, .admin-table tr, .admin-table td {
+    display: block;
+    width: 100%;
+  }
+  .admin-table tr {
+    margin-bottom: 1.5rem;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+  }
+  .admin-table td {
+    text-align: right;
+    padding-left: 45%;
+    position: relative;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    min-height: 50px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    word-break: break-all;
+  }
+  .admin-table td:last-child {
+    border-bottom: none;
+  }
+  .admin-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    width: 40%;
+    font-weight: 600;
+    text-align: left;
+    color: var(--primary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+  }
+  .table-responsive {
+    border: none;
+    background: none;
+  }
+}

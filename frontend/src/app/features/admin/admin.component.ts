@@ -1,0 +1,284 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx';
+import { ApiService } from '../../core/services/api.service';
+import { ButtonComponent } from '../../shared/components/button/button.component';
+
+@Component({
+  selector: 'app-admin',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ButtonComponent, DatePipe],
+  styles: [`
+    :host {
+      display: block;
+      width: 100%;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    /* --- LOGIN PANEL --- */
+    .login-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+    }
+    .login-box {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(20,184,166,0.2);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      text-align: center;
+    }
+    .login-box h2 { font-size: 1.6rem; font-weight: 700; }
+    .login-box p { color: #94a3b8; font-size: 1rem; }
+    .pw-input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(20,184,166,0.3);
+      background: rgba(255,255,255,0.07);
+      color: #f8fafc;
+      font-size: 1.1rem;
+      font-family: 'Outfit', sans-serif;
+      outline: none;
+    }
+    .pw-input:focus { border-color: #14b8a6; box-shadow: 0 0 0 3px rgba(20,184,166,0.2); }
+    .err { color: #ef4444; font-size: 0.9rem; }
+
+    /* --- DASHBOARD --- */
+    .dashboard-wrap {
+      width: 100%;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .top-bar h2 { font-size: 1.8rem; font-weight: 700; }
+    .top-bar p { color: #94a3b8; margin-top: 4px; }
+
+    /* --- CARDS (mobile) --- */
+    .cards-list { display: none; flex-direction: column; gap: 1rem; }
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(20,184,166,0.15);
+      border-radius: 16px;
+      padding: 1.2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .card-name { font-size: 1.1rem; font-weight: 700; color: #f8fafc; }
+    .card-row { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; }
+    .card-field { font-size: 0.88rem; color: #94a3b8; }
+    .card-field span { color: #f8fafc; font-weight: 500; }
+
+    /* --- TABLE (desktop) --- */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid rgba(20,184,166,0.15);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+    thead th {
+      background: rgba(20,184,166,0.1);
+      color: #14b8a6;
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.025); }
+    td {
+      padding: 13px 16px;
+      font-size: 0.95rem;
+      color: #e2e8f0;
+      vertical-align: middle;
+    }
+    .name-cell { font-weight: 700; color: #f8fafc; white-space: nowrap; }
+    .muted { color: #64748b; }
+    .badge {
+      display: inline-block;
+      background: rgba(20,184,166,0.15);
+      color: #14b8a6;
+      border: 1px solid rgba(20,184,166,0.3);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .empty-row td { text-align: center; color: #64748b; padding: 3rem; }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 720px) {
+      .cards-list { display: flex; }
+      .table-wrap { display: none; }
+    }
+  `],
+  template: `
+    <!-- LOGIN -->
+    <div class="login-wrap" *ngIf="!isAuthenticated">
+      <div class="login-box">
+        <h2>🔒 Zone Sécurisée</h2>
+        <p>Entrez le mot de passe pour accéder aux données.</p>
+        <input
+          class="pw-input"
+          type="password"
+          [(ngModel)]="password"
+          placeholder="Mot de passe"
+          (keyup.enter)="login()"
+        />
+        <p class="err" *ngIf="errorMsg">{{ errorMsg }}</p>
+        <app-button text="Accéder" (onClick)="login()"></app-button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="dashboard-wrap" *ngIf="isAuthenticated">
+      <div class="top-bar">
+        <div>
+          <h2>📊 Tableau de Bord</h2>
+          <p>{{ visitors.length }} visiteur(s) enregistré(s)</p>
+        </div>
+        <app-button text="📥 Exporter en Excel" (onClick)="exportToExcel()"></app-button>
+      </div>
+
+      <!-- MOBILE: cards -->
+      <div class="cards-list">
+        <div class="card" *ngFor="let v of visitors">
+          <div class="card-name">{{ v.first_name }} {{ v.last_name }}</div>
+          <div class="card-row">
+            <div class="card-field">📅 <span>{{ v.created_at | date:'dd/MM/yy HH:mm' }}</span></div>
+            <div class="card-field" *ngIf="v.profile"><span class="badge">{{ v.profile }}</span></div>
+          </div>
+          <div class="card-row">
+            <div class="card-field" *ngIf="v.email">✉️ <span>{{ v.email }}</span></div>
+            <div class="card-field" *ngIf="v.phone">📞 <span>{{ v.phone }}</span></div>
+            <div class="card-field" *ngIf="v.whatsapp">💬 <span>{{ v.whatsapp }}</span></div>
+          </div>
+          <div class="card-row">
+            <div class="card-field" *ngIf="v.organization">🏢 <span>{{ v.organization }}</span></div>
+            <div class="card-field" *ngIf="v.position">💼 <span>{{ v.position }}</span></div>
+          </div>
+        </div>
+        <div class="card" *ngIf="visitors.length === 0" style="text-align:center;color:#64748b;padding:2rem">
+          Aucun visiteur enregistré pour le moment.
+        </div>
+      </div>
+
+      <!-- DESKTOP: table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Prénom & Nom</th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>WhatsApp</th>
+              <th>Organisation</th>
+              <th>Poste</th>
+              <th>Profil</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of visitors">
+              <td>{{ v.created_at | date:'dd/MM/yy HH:mm' }}</td>
+              <td class="name-cell">{{ v.first_name }} {{ v.last_name }}</td>
+              <td>{{ v.email || '' }}<span class="muted" *ngIf="!v.email">-</span></td>
+              <td>{{ v.phone || '' }}<span class="muted" *ngIf="!v.phone">-</span></td>
+              <td>{{ v.whatsapp || '' }}<span class="muted" *ngIf="!v.whatsapp">-</span></td>
+              <td>{{ v.organization || '' }}<span class="muted" *ngIf="!v.organization">-</span></td>
+              <td>{{ v.position || '' }}<span class="muted" *ngIf="!v.position">-</span></td>
+              <td><span class="badge" *ngIf="v.profile">{{ v.profile }}</span><span class="muted" *ngIf="!v.profile">-</span></td>
+            </tr>
+            <tr class="empty-row" *ngIf="visitors.length === 0">
+              <td colspan="8">Aucun visiteur enregistré pour le moment.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+})
+export class AdminComponent implements OnInit {
+  isAuthenticated = false;
+  password = '';
+  errorMsg = '';
+  visitors: any[] = [];
+
+  constructor(private apiService: ApiService) {}
+
+  ngOnInit() {
+    if (sessionStorage.getItem('isAdmin') === 'true') {
+      this.isAuthenticated = true;
+      this.loadData();
+    }
+  }
+
+  login() {
+    if (this.password === 'karangue2026') {
+      this.isAuthenticated = true;
+      sessionStorage.setItem('isAdmin', 'true');
+      this.loadData();
+    } else {
+      this.errorMsg = 'Mot de passe incorrect.';
+    }
+  }
+
+  loadData() {
+    this.apiService.getVisitors().subscribe({
+      next: (data: any) => {
+        this.visitors = data;
+        console.log('Visitors loaded:', this.visitors);
+      },
+      error: (err) => console.error('Failed to load visitors', err)
+    });
+  }
+
+  exportToExcel() {
+    const excelData = this.visitors.map(v => ({
+      'Date': new Date(v.created_at).toLocaleString('fr-FR'),
+      'Prénom': v.first_name,
+      'Nom': v.last_name,
+      'Email': v.email || '',
+      'Téléphone': v.phone || '',
+      'WhatsApp': v.whatsapp || '',
+      'Organisation': v.organization || '',
+      'Poste': v.position || '',
+      'Profil': v.profile || ''
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Visiteurs');
+    ws['!cols'] = [
+      { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 },
+      { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 20 }, { wch: 15 }
+    ];
+    XLSX.writeFile(wb, 'Inscriptions_AI_Karangue.xlsx');
+  }
+}
