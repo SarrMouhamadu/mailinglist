@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: k-ai-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: kaistand
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - k-ai-network
+
+  backend:
+    build:
+      context: ./backend
+    container_name: k-ai-backend
+    restart: always
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://postgres:password@db:5432/kaistand
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - k-ai-network
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: k-ai-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - k-ai-network
+
+networks:
+  k-ai-network:
+    driver: bridge
+
+volumes:
+  db-data:
