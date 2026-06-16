@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS pre_orders (
   vehicle_count INTEGER NOT NULL,
   vehicle_types JSONB NOT NULL,
   start_type VARCHAR(50) NOT NULL,
-  start_date DATE,
+  start_date VARCHAR(50),
   source VARCHAR(100) DEFAULT 'KAI_SUMMIT_2026',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

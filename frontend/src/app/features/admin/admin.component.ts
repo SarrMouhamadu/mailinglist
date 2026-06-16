@@ -269,6 +269,7 @@ export class AdminComponent implements OnInit {
   formatDateOnly(dateStr: string): string {
     if (!dateStr) return '-';
     const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr; // Si c'est du texte libre ("Dans un mois"), on l'affiche tel quel
     return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 

@@ -99,11 +99,12 @@ function phoneValidator(control: AbstractControl): ValidationErrors | null {
             </label>
           </div>
           
-          <!-- Date Picker (Conditionnel) -->
+          <!-- Text Input pour la date (Conditionnel) -->
           <div class="date-picker-container fade-in" *ngIf="standForm.get('startType')?.value === 'scheduled'">
             <app-input 
               formControlName="startDate" 
-              type="date"
+              type="text"
+              placeholder="Ex: 15/08/2026 ou la semaine prochaine"
               label="Date prévue *" 
               [error]="getError('startDate')">
             </app-input>
