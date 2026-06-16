@@ -80,6 +80,18 @@ body {
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Admin wide container */
+.app-container.admin-page {
+  max-width: 1300px;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
 /* Animations */
 @keyframes float {
   0% { transform: translate(0, 0); }

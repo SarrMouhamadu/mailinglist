@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { ApiService } from '../../core/services/api.service';
@@ -8,16 +8,16 @@ import { ButtonComponent } from '../../shared/components/button/button.component
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent, DatePipe],
+  changeDetection: ChangeDetectionStrategy.Default,
+  imports: [CommonModule, FormsModule, ButtonComponent],
   styles: [`
     :host {
       display: block;
       width: 100%;
-      min-height: 100vh;
-      padding: 2rem 1rem;
+      padding: 2rem 1.5rem;
     }
 
-    /* --- LOGIN PANEL --- */
+    /* LOGIN */
     .login-wrap {
       display: flex;
       justify-content: center;
@@ -38,7 +38,7 @@ import { ButtonComponent } from '../../shared/components/button/button.component
       text-align: center;
     }
     .login-box h2 { font-size: 1.6rem; font-weight: 700; }
-    .login-box p { color: #94a3b8; font-size: 1rem; }
+    .login-box p { color: #94a3b8; }
     .pw-input {
       width: 100%;
       padding: 14px 18px;
@@ -53,12 +53,7 @@ import { ButtonComponent } from '../../shared/components/button/button.component
     .pw-input:focus { border-color: #14b8a6; box-shadow: 0 0 0 3px rgba(20,184,166,0.2); }
     .err { color: #ef4444; font-size: 0.9rem; }
 
-    /* --- DASHBOARD --- */
-    .dashboard-wrap {
-      width: 100%;
-      max-width: 1300px;
-      margin: 0 auto;
-    }
+    /* DASHBOARD */
     .top-bar {
       display: flex;
       justify-content: space-between;
@@ -67,31 +62,16 @@ import { ButtonComponent } from '../../shared/components/button/button.component
       gap: 1rem;
       margin-bottom: 2rem;
     }
-    .top-bar h2 { font-size: 1.8rem; font-weight: 700; }
+    .top-bar h2 { font-size: 1.8rem; font-weight: 700; color: #f8fafc; }
     .top-bar p { color: #94a3b8; margin-top: 4px; }
 
-    /* --- CARDS (mobile) --- */
-    .cards-list { display: none; flex-direction: column; gap: 1rem; }
-    .card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(20,184,166,0.15);
-      border-radius: 16px;
-      padding: 1.2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-    .card-name { font-size: 1.1rem; font-weight: 700; color: #f8fafc; }
-    .card-row { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; }
-    .card-field { font-size: 0.88rem; color: #94a3b8; }
-    .card-field span { color: #f8fafc; font-weight: 500; }
-
-    /* --- TABLE (desktop) --- */
+    /* TABLE */
     .table-wrap {
       width: 100%;
       overflow-x: auto;
       border-radius: 14px;
-      border: 1px solid rgba(20,184,166,0.15);
+      border: 1px solid rgba(20,184,166,0.2);
+      background: rgba(0,0,0,0.2);
     }
     table {
       width: 100%;
@@ -99,27 +79,27 @@ import { ButtonComponent } from '../../shared/components/button/button.component
       min-width: 700px;
     }
     thead th {
-      background: rgba(20,184,166,0.1);
+      background: rgba(20,184,166,0.12);
       color: #14b8a6;
       padding: 14px 16px;
       text-align: left;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
       white-space: nowrap;
     }
-    tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: rgba(255,255,255,0.025); }
+    tbody tr {
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
     td {
-      padding: 13px 16px;
+      padding: 14px 16px;
       font-size: 0.95rem;
       color: #e2e8f0;
-      vertical-align: middle;
     }
-    .name-cell { font-weight: 700; color: #f8fafc; white-space: nowrap; }
-    .muted { color: #64748b; }
+    .name-td { font-weight: 700; color: #ffffff; white-space: nowrap; }
+    .muted-td { color: #4b5563; }
     .badge {
       display: inline-block;
       background: rgba(20,184,166,0.15);
@@ -130,10 +110,31 @@ import { ButtonComponent } from '../../shared/components/button/button.component
       font-size: 0.78rem;
       font-weight: 600;
     }
-    .empty-row td { text-align: center; color: #64748b; padding: 3rem; }
+    .empty-state {
+      text-align: center;
+      color: #4b5563;
+      padding: 4rem;
+      font-size: 1rem;
+    }
 
-    /* --- RESPONSIVE --- */
+    /* MOBILE CARDS */
+    .cards-list { display: none; flex-direction: column; gap: 1rem; }
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(20,184,166,0.15);
+      border-radius: 16px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .card-name { font-weight: 700; font-size: 1.05rem; color: #fff; }
+    .card-meta { display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; }
+    .card-field { font-size: 0.85rem; color: #94a3b8; }
+    .card-field span { color: #e2e8f0; }
+
     @media (max-width: 720px) {
+      :host { padding: 1rem; }
       .cards-list { display: flex; }
       .table-wrap { display: none; }
     }
@@ -144,20 +145,15 @@ import { ButtonComponent } from '../../shared/components/button/button.component
       <div class="login-box">
         <h2>🔒 Zone Sécurisée</h2>
         <p>Entrez le mot de passe pour accéder aux données.</p>
-        <input
-          class="pw-input"
-          type="password"
-          [(ngModel)]="password"
-          placeholder="Mot de passe"
-          (keyup.enter)="login()"
-        />
+        <input class="pw-input" type="password" [(ngModel)]="password"
+               placeholder="Mot de passe" (keyup.enter)="login()" />
         <p class="err" *ngIf="errorMsg">{{ errorMsg }}</p>
         <app-button text="Accéder" (onClick)="login()"></app-button>
       </div>
     </div>
 
     <!-- DASHBOARD -->
-    <div class="dashboard-wrap" *ngIf="isAuthenticated">
+    <ng-container *ngIf="isAuthenticated">
       <div class="top-bar">
         <div>
           <h2>📊 Tableau de Bord</h2>
@@ -166,62 +162,58 @@ import { ButtonComponent } from '../../shared/components/button/button.component
         <app-button text="📥 Exporter en Excel" (onClick)="exportToExcel()"></app-button>
       </div>
 
-      <!-- MOBILE: cards -->
-      <div class="cards-list">
-        <div class="card" *ngFor="let v of visitors">
-          <div class="card-name">{{ v.first_name }} {{ v.last_name }}</div>
-          <div class="card-row">
-            <div class="card-field">📅 <span>{{ v.created_at | date:'dd/MM/yy HH:mm' }}</span></div>
-            <div class="card-field" *ngIf="v.profile"><span class="badge">{{ v.profile }}</span></div>
-          </div>
-          <div class="card-row">
-            <div class="card-field" *ngIf="v.email">✉️ <span>{{ v.email }}</span></div>
-            <div class="card-field" *ngIf="v.phone">📞 <span>{{ v.phone }}</span></div>
-            <div class="card-field" *ngIf="v.whatsapp">💬 <span>{{ v.whatsapp }}</span></div>
-          </div>
-          <div class="card-row">
-            <div class="card-field" *ngIf="v.organization">🏢 <span>{{ v.organization }}</span></div>
-            <div class="card-field" *ngIf="v.position">💼 <span>{{ v.position }}</span></div>
-          </div>
-        </div>
-        <div class="card" *ngIf="visitors.length === 0" style="text-align:center;color:#64748b;padding:2rem">
-          Aucun visiteur enregistré pour le moment.
-        </div>
-      </div>
-
-      <!-- DESKTOP: table -->
+      <!-- Desktop table -->
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Prénom & Nom</th>
-              <th>Email</th>
-              <th>Téléphone</th>
-              <th>WhatsApp</th>
-              <th>Organisation</th>
-              <th>Poste</th>
-              <th>Profil</th>
+              <th>Date</th><th>Nom complet</th><th>Email</th>
+              <th>Téléphone</th><th>WhatsApp</th>
+              <th>Organisation</th><th>Poste</th><th>Profil</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let v of visitors">
-              <td>{{ v.created_at | date:'dd/MM/yy HH:mm' }}</td>
-              <td class="name-cell">{{ v.first_name }} {{ v.last_name }}</td>
-              <td>{{ v.email || '' }}<span class="muted" *ngIf="!v.email">-</span></td>
-              <td>{{ v.phone || '' }}<span class="muted" *ngIf="!v.phone">-</span></td>
-              <td>{{ v.whatsapp || '' }}<span class="muted" *ngIf="!v.whatsapp">-</span></td>
-              <td>{{ v.organization || '' }}<span class="muted" *ngIf="!v.organization">-</span></td>
-              <td>{{ v.position || '' }}<span class="muted" *ngIf="!v.position">-</span></td>
-              <td><span class="badge" *ngIf="v.profile">{{ v.profile }}</span><span class="muted" *ngIf="!v.profile">-</span></td>
+            <tr *ngFor="let v of visitors; trackBy: trackById">
+              <td>{{ formatDate(v.created_at) }}</td>
+              <td class="name-td">{{ v.first_name }} {{ v.last_name }}</td>
+              <td>{{ v.email || '-' }}</td>
+              <td>{{ v.phone || '-' }}</td>
+              <td>{{ v.whatsapp || '-' }}</td>
+              <td>{{ v.organization || '-' }}</td>
+              <td>{{ v.position || '-' }}</td>
+              <td>
+                <span class="badge" *ngIf="v.profile">{{ v.profile }}</span>
+                <span class="muted-td" *ngIf="!v.profile">-</span>
+              </td>
             </tr>
-            <tr class="empty-row" *ngIf="visitors.length === 0">
-              <td colspan="8">Aucun visiteur enregistré pour le moment.</td>
+            <tr *ngIf="visitors.length === 0">
+              <td colspan="8" class="empty-state">Aucun visiteur enregistré.</td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
+
+      <!-- Mobile cards -->
+      <div class="cards-list">
+        <div class="card" *ngFor="let v of visitors; trackBy: trackById">
+          <div class="card-name">{{ v.first_name }} {{ v.last_name }}</div>
+          <div class="card-meta">
+            <div class="card-field">📅 <span>{{ formatDate(v.created_at) }}</span></div>
+            <span class="badge" *ngIf="v.profile">{{ v.profile }}</span>
+          </div>
+          <div class="card-meta">
+            <div class="card-field" *ngIf="v.email">✉️ <span>{{ v.email }}</span></div>
+            <div class="card-field" *ngIf="v.phone">📞 <span>{{ v.phone }}</span></div>
+            <div class="card-field" *ngIf="v.whatsapp">💬 <span>{{ v.whatsapp }}</span></div>
+          </div>
+          <div class="card-meta">
+            <div class="card-field" *ngIf="v.organization">🏢 <span>{{ v.organization }}</span></div>
+            <div class="card-field" *ngIf="v.position">💼 <span>{{ v.position }}</span></div>
+          </div>
+        </div>
+        <div class="card empty-state" *ngIf="visitors.length === 0">Aucun visiteur.</div>
+      </div>
+    </ng-container>
   `
 })
 export class AdminComponent implements OnInit {
@@ -230,7 +222,10 @@ export class AdminComponent implements OnInit {
   errorMsg = '';
   visitors: any[] = [];
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     if (sessionStorage.getItem('isAdmin') === 'true') {
@@ -252,16 +247,30 @@ export class AdminComponent implements OnInit {
   loadData() {
     this.apiService.getVisitors().subscribe({
       next: (data: any) => {
-        this.visitors = data;
-        console.log('Visitors loaded:', this.visitors);
+        // Créer un nouveau tableau pour forcer la détection de changements
+        this.visitors = Array.isArray(data) ? [...data] : [];
+        this.cdr.detectChanges();
+        console.log(`[Admin] ${this.visitors.length} visiteur(s) chargé(s)`, this.visitors);
       },
-      error: (err) => console.error('Failed to load visitors', err)
+      error: (err) => {
+        console.error('[Admin] Erreur chargement:', err);
+      }
     });
+  }
+
+  trackById(index: number, v: any) {
+    return v.id;
+  }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
   }
 
   exportToExcel() {
     const excelData = this.visitors.map(v => ({
-      'Date': new Date(v.created_at).toLocaleString('fr-FR'),
+      'Date': this.formatDate(v.created_at),
       'Prénom': v.first_name,
       'Nom': v.last_name,
       'Email': v.email || '',
@@ -275,10 +284,7 @@ export class AdminComponent implements OnInit {
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Visiteurs');
-    ws['!cols'] = [
-      { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 },
-      { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 20 }, { wch: 15 }
-    ];
+    ws['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 20 }, { wch: 15 }];
     XLSX.writeFile(wb, 'Inscriptions_AI_Karangue.xlsx');
   }
 }
