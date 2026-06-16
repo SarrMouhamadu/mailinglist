@@ -134,7 +134,7 @@ function phoneValidator(control: AbstractControl): ValidationErrors | null {
 
         <div class="action-bar text-center">
           <button type="submit" class="premium-button" [disabled]="submitting">
-            {{ submitting ? 'Traitement en cours...' : '🚀 Je précommande maintenant' }}
+            {{ submitting ? 'Traitement en cours...' : 'Je précommande maintenant' }}
           </button>
         </div>
         
