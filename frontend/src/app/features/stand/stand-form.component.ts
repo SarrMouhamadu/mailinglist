@@ -147,33 +147,33 @@ function phoneValidator(control: AbstractControl): ValidationErrors | null {
     .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
     .header p { color: var(--text-muted); font-size: 1.2rem; }
     
-    .section-title { color: #f8fafc; font-size: 1.3rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
-    .section-container { margin-top: 0.5rem; }
-    .input-label { font-size: 1.1rem; color: var(--text-muted); font-weight: 500; margin-bottom: 0.8rem; display: block; }
+    .section-title { color: #f8fafc; font-size: 1.3rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; text-align: left; }
+    .section-container { margin-bottom: 1.2rem; text-align: left; }
+    .input-label { font-size: 1.1rem; color: var(--text-muted); font-weight: 500; margin-bottom: 0.6rem; display: block; text-align: left; }
     
     /* Grille principale (Split 50/50 sur desktop) */
     .desktop-grid { display: flex; flex-direction: column; gap: 2.5rem; }
     @media (min-width: 992px) {
       .desktop-grid { flex-direction: row; gap: 4rem; }
-      .grid-column { flex: 1; }
+      .grid-column { flex: 1; display: flex; flex-direction: column; }
     }
 
     /* Lignes dans les colonnes */
-    .form-row { display: flex; flex-direction: column; gap: 1rem; }
+    .form-row { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.2rem; }
     @media (min-width: 600px) {
       .form-row { flex-direction: row; gap: 1.5rem; }
-      .form-row > * { flex: 1; }
+      .form-row > * { flex: 1; margin-bottom: 0 !important; }
       .form-row-align-top { align-items: flex-start; }
     }
 
     /* Radio Cards */
-    .radio-group { display: flex; flex-direction: column; gap: 1rem; }
+    .radio-group { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.2rem; }
     @media (min-width: 600px) { .radio-group { flex-direction: row; } }
     
     .radio-card {
       flex: 1;
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -181,7 +181,7 @@ function phoneValidator(control: AbstractControl): ValidationErrors | null {
       border-radius: 16px;
       cursor: pointer;
       transition: all 0.3s ease;
-      text-align: center;
+      text-align: left;
     }
     .radio-card input { display: none; }
     .radio-card.active {
