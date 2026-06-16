@@ -8,11 +8,11 @@ import { PreOrder } from '../models/pre-order.model';
 })
 export class ApiService {
 
-  // Si on est sur le port standard (Docker Nginx), on utilise le proxy relatif
-  // Sinon (Dev Angular), on pointe vers le backend sur le port 3000
-  private baseUrl = (window.location.port === '80' || window.location.port === '')
-    ? '/api'
-    : `http://${window.location.hostname}:3000/api`;
+  // Si on est en développement local Angular (port 4200), on pointe vers le backend sur le port 3000
+  // Sinon (Docker, Nginx sur n'importe quel port comme 80 ou 8080), on utilise le proxy relatif
+  private baseUrl = window.location.port === '4200'
+    ? `http://${window.location.hostname}:3000/api`
+    : '/api';
 
   constructor(private http: HttpClient) {}
 
