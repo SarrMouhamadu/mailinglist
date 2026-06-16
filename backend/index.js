@@ -11,40 +11,50 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.post('/api/visitors', async (req, res) => {
-  const { first_name, last_name, email, phone, whatsapp, organization, position, profile } = req.body;
+app.post('/api/pre-orders', async (req, res) => {
+  const { 
+    fullName, 
+    whatsapp, 
+    package, 
+    vehicleCount, 
+    vehicleTypes, 
+    startType, 
+    startDate, 
+    source 
+  } = req.body;
   
   try {
     const text = `
-      INSERT INTO visitors (first_name, last_name, email, phone, whatsapp, organization, position, profile)
+      INSERT INTO pre_orders 
+      (full_name, whatsapp, package, vehicle_count, vehicle_types, start_type, start_date, source)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
     `;
     const values = [
-      first_name, 
-      last_name, 
-      email || null, 
-      phone || null, 
-      whatsapp || null, 
-      organization || null, 
-      position || null, 
-      profile || null
+      fullName, 
+      whatsapp, 
+      package, 
+      vehicleCount, 
+      JSON.stringify(vehicleTypes), 
+      startType, 
+      startDate || null, 
+      source || 'KAI_SUMMIT_2026'
     ];
     
     const result = await db.query(text, values);
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('Error inserting visitor:', error);
+    console.error('Error inserting pre-order:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-app.get('/api/visitors', async (req, res) => {
+app.get('/api/pre-orders', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM visitors ORDER BY created_at DESC');
+    const result = await db.query('SELECT * FROM pre_orders ORDER BY created_at DESC');
     res.status(200).json(result.rows);
   } catch (error) {
-    console.error('Error fetching visitors:', error);
+    console.error('Error fetching pre-orders:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

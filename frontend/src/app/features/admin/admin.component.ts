@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { ApiService } from '../../core/services/api.service';
 import { ButtonComponent } from '../../shared/components/button/button.component';
+import { PreOrder } from '../../core/models/pre-order.model';
 
 @Component({
   selector: 'app-admin',
@@ -76,7 +77,7 @@ import { ButtonComponent } from '../../shared/components/button/button.component
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 700px;
+      min-width: 900px;
     }
     thead th {
       background: rgba(20,184,166,0.12);
@@ -133,7 +134,7 @@ import { ButtonComponent } from '../../shared/components/button/button.component
     .card-field { font-size: 0.85rem; color: #94a3b8; }
     .card-field span { color: #e2e8f0; }
 
-    @media (max-width: 720px) {
+    @media (max-width: 900px) {
       :host { padding: 1rem; }
       .cards-list { display: flex; }
       .table-wrap { display: none; }
@@ -144,7 +145,7 @@ import { ButtonComponent } from '../../shared/components/button/button.component
     <div class="login-wrap" *ngIf="!isAuthenticated">
       <div class="login-box">
         <h2>🔒 Zone Sécurisée</h2>
-        <p>Entrez le mot de passe pour accéder aux données.</p>
+        <p>Entrez le mot de passe pour accéder aux précommandes.</p>
         <input class="pw-input" type="password" [(ngModel)]="password"
                placeholder="Mot de passe" (keyup.enter)="login()" />
         <p class="err" *ngIf="errorMsg">{{ errorMsg }}</p>
@@ -156,8 +157,8 @@ import { ButtonComponent } from '../../shared/components/button/button.component
     <ng-container *ngIf="isAuthenticated">
       <div class="top-bar">
         <div>
-          <h2>📊 Tableau de Bord</h2>
-          <p>{{ visitors.length }} visiteur(s) enregistré(s)</p>
+          <h2>📊 Tableau de Bord (Précommandes)</h2>
+          <p>{{ orders.length }} précommande(s) enregistrée(s)</p>
         </div>
         <app-button text="📥 Exporter en Excel" (onClick)="exportToExcel()"></app-button>
       </div>
@@ -167,27 +168,29 @@ import { ButtonComponent } from '../../shared/components/button/button.component
         <table>
           <thead>
             <tr>
-              <th>Date</th><th>Nom complet</th><th>Email</th>
-              <th>Téléphone</th><th>WhatsApp</th>
-              <th>Organisation</th><th>Poste</th><th>Profil</th>
+              <th>Date</th>
+              <th>Nom complet</th>
+              <th>WhatsApp</th>
+              <th>Offre</th>
+              <th>Véhicules</th>
+              <th>Types</th>
+              <th>Démarrage</th>
+              <th>Source</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let v of visitors; trackBy: trackById">
-              <td>{{ formatDate(v.created_at) }}</td>
-              <td class="name-td">{{ v.first_name }} {{ v.last_name }}</td>
-              <td>{{ v.email || '-' }}</td>
-              <td>{{ v.phone || '-' }}</td>
-              <td>{{ v.whatsapp || '-' }}</td>
-              <td>{{ v.organization || '-' }}</td>
-              <td>{{ v.position || '-' }}</td>
-              <td>
-                <span class="badge" *ngIf="v.profile">{{ v.profile }}</span>
-                <span class="muted-td" *ngIf="!v.profile">-</span>
-              </td>
+            <tr *ngFor="let o of orders; trackBy: trackById">
+              <td>{{ formatDate(o.created_at) }}</td>
+              <td class="name-td">{{ o.full_name }}</td>
+              <td>{{ o.whatsapp }}</td>
+              <td><span class="badge">{{ o.package === 'yearly' ? 'Annuelle' : 'Mensuelle' }}</span></td>
+              <td>{{ o.vehicle_count }}</td>
+              <td>{{ formatArray(o.vehicle_types) }}</td>
+              <td>{{ o.start_type === 'immediate' ? 'Immédiat' : formatDateOnly(o.start_date) }}</td>
+              <td>{{ o.source }}</td>
             </tr>
-            <tr *ngIf="visitors.length === 0">
-              <td colspan="8" class="empty-state">Aucun visiteur enregistré.</td>
+            <tr *ngIf="orders.length === 0">
+              <td colspan="8" class="empty-state">Aucune précommande enregistrée.</td>
             </tr>
           </tbody>
         </table>
@@ -195,23 +198,19 @@ import { ButtonComponent } from '../../shared/components/button/button.component
 
       <!-- Mobile cards -->
       <div class="cards-list">
-        <div class="card" *ngFor="let v of visitors; trackBy: trackById">
-          <div class="card-name">{{ v.first_name }} {{ v.last_name }}</div>
+        <div class="card" *ngFor="let o of orders; trackBy: trackById">
+          <div class="card-name">{{ o.full_name }}</div>
           <div class="card-meta">
-            <div class="card-field">📅 <span>{{ formatDate(v.created_at) }}</span></div>
-            <span class="badge" *ngIf="v.profile">{{ v.profile }}</span>
+            <div class="card-field">📅 <span>{{ formatDate(o.created_at) }}</span></div>
+            <span class="badge">{{ o.package === 'yearly' ? 'Annuelle' : 'Mensuelle' }}</span>
           </div>
           <div class="card-meta">
-            <div class="card-field" *ngIf="v.email">✉️ <span>{{ v.email }}</span></div>
-            <div class="card-field" *ngIf="v.phone">📞 <span>{{ v.phone }}</span></div>
-            <div class="card-field" *ngIf="v.whatsapp">💬 <span>{{ v.whatsapp }}</span></div>
-          </div>
-          <div class="card-meta">
-            <div class="card-field" *ngIf="v.organization">🏢 <span>{{ v.organization }}</span></div>
-            <div class="card-field" *ngIf="v.position">💼 <span>{{ v.position }}</span></div>
+            <div class="card-field">💬 <span>{{ o.whatsapp }}</span></div>
+            <div class="card-field">🚗 <span>{{ o.vehicle_count }} ({{ formatArray(o.vehicle_types) }})</span></div>
+            <div class="card-field">🚀 <span>Démarrage: {{ o.start_type === 'immediate' ? 'Immédiat' : formatDateOnly(o.start_date) }}</span></div>
           </div>
         </div>
-        <div class="card empty-state" *ngIf="visitors.length === 0">Aucun visiteur.</div>
+        <div class="card empty-state" *ngIf="orders.length === 0">Aucune précommande.</div>
       </div>
     </ng-container>
   `
@@ -220,7 +219,7 @@ export class AdminComponent implements OnInit {
   isAuthenticated = false;
   password = '';
   errorMsg = '';
-  visitors: any[] = [];
+  orders: any[] = [];
 
   constructor(
     private apiService: ApiService,
@@ -245,12 +244,11 @@ export class AdminComponent implements OnInit {
   }
 
   loadData() {
-    this.apiService.getVisitors().subscribe({
+    this.apiService.getPreOrders().subscribe({
       next: (data: any) => {
-        // Créer un nouveau tableau pour forcer la détection de changements
-        this.visitors = Array.isArray(data) ? [...data] : [];
+        this.orders = Array.isArray(data) ? [...data] : [];
         this.cdr.detectChanges();
-        console.log(`[Admin] ${this.visitors.length} visiteur(s) chargé(s)`, this.visitors);
+        console.log(`[Admin] ${this.orders.length} précommande(s) chargée(s)`, this.orders);
       },
       error: (err) => {
         console.error('[Admin] Erreur chargement:', err);
@@ -258,8 +256,8 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  trackById(index: number, v: any) {
-    return v.id;
+  trackById(index: number, o: any) {
+    return o.id;
   }
 
   formatDate(dateStr: string): string {
@@ -268,23 +266,34 @@ export class AdminComponent implements OnInit {
     return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
   }
 
+  formatDateOnly(dateStr: string): string {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  formatArray(arr: any): string {
+    if (!arr) return '-';
+    if (Array.isArray(arr)) return arr.join(', ');
+    return String(arr);
+  }
+
   exportToExcel() {
-    const excelData = this.visitors.map(v => ({
-      'Date': this.formatDate(v.created_at),
-      'Prénom': v.first_name,
-      'Nom': v.last_name,
-      'Email': v.email || '',
-      'Téléphone': v.phone || '',
-      'WhatsApp': v.whatsapp || '',
-      'Organisation': v.organization || '',
-      'Poste': v.position || '',
-      'Profil': v.profile || ''
+    const excelData = this.orders.map(o => ({
+      'Date inscription': this.formatDate(o.created_at),
+      'Nom complet': o.full_name,
+      'WhatsApp': o.whatsapp,
+      'Offre': o.package === 'yearly' ? 'Annuelle' : 'Mensuelle',
+      'Nb Véhicules': o.vehicle_count,
+      'Types': this.formatArray(o.vehicle_types),
+      'Démarrage': o.start_type === 'immediate' ? 'Immédiat' : this.formatDateOnly(o.start_date),
+      'Source': o.source
     }));
 
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Visiteurs');
-    ws['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 20 }, { wch: 15 }];
-    XLSX.writeFile(wb, 'Inscriptions_AI_Karangue.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, 'Précommandes');
+    ws['!cols'] = [{ wch: 20 }, { wch: 30 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 40 }, { wch: 20 }, { wch: 20 }];
+    XLSX.writeFile(wb, 'Precommandes_AI_Karangue.xlsx');
   }
 }

@@ -1,12 +1,14 @@
-CREATE TABLE IF NOT EXISTS visitors (
+DROP TABLE IF EXISTS visitors;
+
+CREATE TABLE IF NOT EXISTS pre_orders (
   id SERIAL PRIMARY KEY,
-  first_name VARCHAR(100) NOT NULL,
-  last_name VARCHAR(100) NOT NULL,
-  email VARCHAR(150),
-  phone VARCHAR(50),
-  whatsapp VARCHAR(50),
-  organization VARCHAR(150),
-  position VARCHAR(100),
-  profile VARCHAR(50),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  full_name VARCHAR(200) NOT NULL,
+  whatsapp VARCHAR(50) NOT NULL,
+  package VARCHAR(50) NOT NULL,
+  vehicle_count INTEGER NOT NULL,
+  vehicle_types JSONB NOT NULL,
+  start_type VARCHAR(50) NOT NULL,
+  start_date DATE,
+  source VARCHAR(100) DEFAULT 'KAI_SUMMIT_2026',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

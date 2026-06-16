@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Visitor } from '../models/visitor.model';
+import { Observable } from 'rxjs';
+import { PreOrder } from '../models/pre-order.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,11 +16,11 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  createVisitor(data: Visitor) {
-    return this.http.post(`${this.baseUrl}/visitors`, data);
+  createPreOrder(preOrder: PreOrder): Observable<PreOrder> {
+    return this.http.post<PreOrder>(`${this.baseUrl}/pre-orders`, preOrder);
   }
 
-  getVisitors() {
-    return this.http.get(`${this.baseUrl}/visitors`);
+  getPreOrders(): Observable<PreOrder[]> {
+    return this.http.get<PreOrder[]>(`${this.baseUrl}/pre-orders`);
   }
 }
